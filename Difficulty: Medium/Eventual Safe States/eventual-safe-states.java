@@ -44,47 +44,39 @@ class GFG {
 class Solution {
 
     List<Integer> eventualSafeNodes(int V, List<List<Integer>> adj) {
-        
-        int[] vis = new int[V];
-        int[] pathvis = new int[V];
-        int[] check = new int[V];
-        
-        for(int i = 0 ; i < V ; i++){
-            if(vis[i] == 0){
-                dfs(i,vis,pathvis,adj,check);
-            }
-        }
-        List<Integer> safenodes = new ArrayList<>();
-        
-        for(int i = 0 ; i< V;i++){
-            if(check[i] == 1){
-                safenodes.add(i);
-            }
-            
-        }
-        return safenodes;
 
-        
-    }
-    
-    private boolean dfs(int node, int[] vis, int[] pathvis, List<List<Integer>> adj, int[] check){
-        vis[node] = 1;
-        pathvis[node] = 1;
-        check[node] = 0;
-        // traverse for the adjacent node
-        for(int it: adj.get(node)){
-           if(vis[it] == 0){
-               if(dfs(it,vis,pathvis,adj,check) == true){
-                   return true;
-               }
-           } 
-           else if(pathvis[it] == 1){
-               return true;
-           }
+        List<List<Integer>> adjRev = new ArrayList<>();
+        for (int i = 0; i < V; i++) {
+            adjRev.add(new ArrayList<>());
         }
-        check[node] = 1;
-        pathvis[node] = 0;
-        return false;
+        int indegree[] = new int[V];
+        for (int i = 0; i < V; i++) {
+            // i -> it
+            // it -> i
+            for (int it : adj.get(i)) {
+                adjRev.get(it).add(i);
+                indegree[i]++;
+            }
+        }
+        Queue<Integer> q = new LinkedList<>();
+        List<Integer> safeNodes = new ArrayList<>();
+        for (int i = 0; i < V; i++) {
+            if (indegree[i] == 0) {
+                q.add(i);
+            }
+        }
+
+        while (!q.isEmpty()) {
+            int node = q.peek();
+            q.remove();
+            safeNodes.add(node);
+            for (int it : adjRev.get(node)) {
+                indegree[it]--;
+                if (indegree[it] == 0) q.add(it);
+            }
+        }
+        Collections.sort(safeNodes);
+        return safeNodes;
         
     }
 }
